@@ -1,0 +1,2 @@
+FLASK_APP=fleact.py 
+FLASK_DEBUG=1
