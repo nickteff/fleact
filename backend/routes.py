@@ -4,7 +4,8 @@ import pandas as pd
 from backend import app
 
 
-df = pd.read_csv('backend/static/census_msa_loc.csv')
+df = pd.read_csv('backend/static/census.csv')
+#df.iloc[:, 6:] = df.iloc[:, 6:].astype('float')
 tbl = pd.read_csv('backend/static/states.csv')
 
 @app.route('/')
@@ -21,16 +22,33 @@ def states():
             {'label': state.State, 'value': state.StateCode }
                 for state in states
         ],
-        'geo': [
-            {'state': state.StateCode,
-             'lat': state.Latitude,
-             'lon': state.Longitude }
-                for state in states2
-        ]
     }
+
     return jsonify(states)
 
-@app.route('/api/chart')
+
+
+@app.route('/api/states/<state>')
+def statesGeo(state):
+    layout = {"layout": {
+      'autosize': True,
+      'hovermode':'closest',
+      'mapbox': {
+        'bearing':0,
+        'center': {
+          'lat':37,
+          'lon':-95
+        },
+        'pitch':0,
+        'zoom':int(15),
+        'style':'streets'
+      },
+    }}
+    return jsonify(layout)
+
+
+
+@app.route('/api/chart/country')
 def chartView():
     return jsonify(maply(df))
 
@@ -38,14 +56,16 @@ def chartView():
 def chartStateView(state):
     return jsonify(maply(df[df.STATECODE == state]))
 
+
+
 def maply(df):
     data = [{
       'type':'scattermapbox',
-      'lat':list(df.LONG_Y),
-      'lon':list(df.LAT_X),
+      'lat':list(df.LAT),
+      'lon':list(df.LON),
       'mode':'markers',
       'marker': {
-        'size':4
+        'size':6
       },
       'text':["{}, {}".format(city.CITY, city.STATECODE) for city in df.loc[:, ["CITY", "STATECODE"]].itertuples()],
     }]
