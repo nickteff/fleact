@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
-import Select from 'react-select';
+import {Row, Col, Select, Card} from 'antd';
+import "antd/dist/antd.css";
+//import Select from 'react-select';
 import Plot from 'react-plotly.js';
 import axios from 'axios';
 
+const Option = Select.Option
 
 const AccessToken = 'pk.eyJ1IjoicGluZXlkYXRhIiwiYSI6ImNqb2t3NWN6ZDAycGkzcXAzODc2cml2bm8ifQ.aGKqMqIIKcLto1Lw9Ek89A'
 
@@ -12,12 +15,19 @@ const layout = {
   mapbox: {
     bearing:0,
     center: {
-      lat:37,
+      lat:38,
       lon:-95
     },
     pitch:0,
-    zoom:3.5,
+    zoom:3.2,
     style:'streets'
+  },
+  margin: {
+    l: 0,
+    r: 5,
+    b: 10,
+    t: 5,
+    pad: 4
   },
 }
 
@@ -26,6 +36,7 @@ const states = '/api/states'
 
 class Map extends Component {
   state = {
+    selectUrbanValue: '',
     selectValue: '',
     options: [],
     data: [],
@@ -53,16 +64,40 @@ class Map extends Component {
 
   onSelectChange = opt => {
     this.setState({
-      selectValue: opt,
+      selectValue: opt.value,
+    })
+    console.log(opt)
+    console.log(this.selectValue)
+    // this is still not quite working.  I want the layout to update
+    // but having some issues getting it from the API
+    axios.get(states+'/'+opt)
+      .then((res) => {
+        this.setState({layout: layout})  // try to change later
+
+      return axios.get(spec+'/state/'+opt);
+      })
+      .then((res) => {
+        this.setState({ data: res.data.data })
+
+      })
+      .catch((err) => {
+        console.error(err)
+      });
+
+  };
+
+  onUrbanSelectChange = opt => {
+    this.setState({
+      selectUrbanValue: opt,
     })
 
     // this is still not quite working.  I want the layout to update
     // but having some issues getting it from the API
-    axios.get(states+'/'+opt.value)
+    axios.get(states+'/'+opt)
       .then((res) => {
         this.setState({layout: layout})  // try to change later
 
-      return axios.get(spec+'/'+opt.value);
+      return axios.get(spec+'/urban/'+opt);
       })
       .then((res) => {
         this.setState({ data: res.data.data })
@@ -76,21 +111,62 @@ class Map extends Component {
 
   render() {
     return (
-      <div className="App">
-          <Select
-            options={this.state.options}
-            value={ this.state.selectValue }
-            onChange={ this.onSelectChange }
-            className='basic-single'>
-          </Select>
-          <div id="vis"></div>
-          <Plot
-            data={ this.state.data }
-            layout={ this.state.layout }
-            style={ {width: '1200px', height: '800px'} }
-            useResizeHandler={ true }
-            config={ {mapboxAccessToken: AccessToken} }>
-          </Plot>
+      <div
+        className="App"
+        style={{
+          paddingLeft: '5%',
+          paddingRight: '-5%',
+          background:'#ECECEC'
+        }}>
+
+          <Card
+            title="US Census"
+            style={{
+              width: '95%',
+              height: '80%',
+            }}
+            hoverable
+          >
+            <Row>
+              <Col span={6}>
+                  <Select
+                    showSearch
+                    defaultValue="Urban or rural"
+                    style={{ width: '100%' }}
+                    onChange={ this.onUrbanSelectChange }
+                  >
+                      <Option key='urban'>Urban </Option>
+                      <Option key='rural'>Rural </Option>
+                  </Select>
+              </Col>
+              <Col span={6}>
+              <Select
+                showSearch
+                defaultValue="Select a state"
+                style={{ width: '100%' }}
+                onChange={ this.onSelectChange }
+              >
+                { this.state.options.map(st =>
+                  <Option key={ st.value }>{ st.label } </Option>) }
+              </Select>
+            </Col>
+            </Row>
+            <Plot
+              data={ this.state.data }
+              layout={ this.state.layout }
+              style={
+                {
+                  width: '75%',
+                  height: '50%',
+                }
+               }
+              useResizeHandler={ true }
+              config={{
+                mapboxAccessToken: AccessToken,
+                displaylogo: false,
+              }}>
+            </Plot>
+          </Card>
       </div>
     );
   }

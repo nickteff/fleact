@@ -4,9 +4,11 @@ import pandas as pd
 from backend import app
 
 
-df = pd.read_csv('backend/static/census.csv')
-#df.iloc[:, 6:] = df.iloc[:, 6:].astype('float')
-tbl = pd.read_csv('backend/static/states.csv')
+df = pd.read_csv('compute/static/census.csv')
+df.loc[:, "MSA_CODE"] = df.loc[:, "MSA_CODE"].astype('int')
+tbl = pd.read_csv('compute/static/states.csv')
+
+#df[df.MSA_CODE != 0].sample(3)
 
 @app.route('/')
 @app.route('/index')
@@ -52,9 +54,16 @@ def statesGeo(state):
 def chartView():
     return jsonify(maply(df))
 
-@app.route('/api/chart/<state>')
+@app.route('/api/chart/state/<state>')
 def chartStateView(state):
     return jsonify(maply(df[df.STATECODE == state]))
+
+@app.route('/api/chart/urban/<urban>')
+def urbanView(urban):
+    if urban == 'urban':
+        return jsonify(maply(df[df.MSA_CODE != 0]))
+    else:
+        return jsonify(maply(df[df.MSA_CODE == 0]))
 
 
 
@@ -73,3 +82,5 @@ def maply(df):
     fig = dict(data=data)
 
     return fig
+
+maply(df[df.MSA_CODE == 0])
