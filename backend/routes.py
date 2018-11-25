@@ -4,8 +4,11 @@ import pandas as pd
 from backend import app
 
 
-df = pd.read_csv('backend/static/census_msa_loc.csv')
-tbl = pd.read_csv('backend/static/states.csv')
+df = pd.read_csv('compute/static/census.csv')
+df.loc[:, "MSA_CODE"] = df.loc[:, "MSA_CODE"].astype('int')
+tbl = pd.read_csv('compute/static/states.csv')
+
+#df[df.MSA_CODE != 0].sample(3)
 
 @app.route('/')
 @app.route('/index')
@@ -21,31 +24,57 @@ def states():
             {'label': state.State, 'value': state.StateCode }
                 for state in states
         ],
-        'geo': [
-            {'state': state.StateCode,
-             'lat': state.Latitude,
-             'lon': state.Longitude }
-                for state in states2
-        ]
     }
+
     return jsonify(states)
 
-@app.route('/api/chart')
+
+
+@app.route('/api/states/<state>')
+def statesGeo(state):
+    layout = {"layout": {
+      'autosize': True,
+      'hovermode':'closest',
+      'mapbox': {
+        'bearing':0,
+        'center': {
+          'lat':37,
+          'lon':-95
+        },
+        'pitch':0,
+        'zoom':int(15),
+        'style':'streets'
+      },
+    }}
+    return jsonify(layout)
+
+
+
+@app.route('/api/chart/country')
 def chartView():
     return jsonify(maply(df))
 
-@app.route('/api/chart/<state>')
+@app.route('/api/chart/state/<state>')
 def chartStateView(state):
     return jsonify(maply(df[df.STATECODE == state]))
+
+@app.route('/api/chart/urban/<urban>')
+def urbanView(urban):
+    if urban == 'urban':
+        return jsonify(maply(df[df.MSA_CODE != 0]))
+    else:
+        return jsonify(maply(df[df.MSA_CODE == 0]))
+
+
 
 def maply(df):
     data = [{
       'type':'scattermapbox',
-      'lat':list(df.LONG_Y),
-      'lon':list(df.LAT_X),
+      'lat':list(df.LAT),
+      'lon':list(df.LON),
       'mode':'markers',
       'marker': {
-        'size':4
+        'size':6
       },
       'text':["{}, {}".format(city.CITY, city.STATECODE) for city in df.loc[:, ["CITY", "STATECODE"]].itertuples()],
     }]
@@ -53,3 +82,5 @@ def maply(df):
     fig = dict(data=data)
 
     return fig
+
+maply(df[df.MSA_CODE == 0])
