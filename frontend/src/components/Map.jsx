@@ -114,6 +114,7 @@ class Map extends Component {
       <div
         className="App"
         style={{
+          paddingTop: '10px',
           paddingLeft: '5%',
           paddingRight: '-5%',
           background:'#ECECEC'
@@ -123,7 +124,7 @@ class Map extends Component {
             title="US Census"
             style={{
               width: '95%',
-              height: '80%',
+              height: '95%',
             }}
             hoverable
           >
