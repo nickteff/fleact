@@ -6,7 +6,7 @@ import Plot from 'react-plotly.js';
 import axios from 'axios';
 
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content} = Layout;
 
 const Option = Select.Option
 
@@ -178,7 +178,6 @@ class Map extends Component {
                 </Row>
               </div>
             </Content>
-            <Footer></Footer>
           </Layout>
       </div>
     );
