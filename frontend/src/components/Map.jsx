@@ -5,12 +5,34 @@ import "antd/dist/antd.css";
 import Plot from 'react-plotly.js';
 import axios from 'axios';
 
+const bar = [
+  {
+    x: ['giraffes', 'orangutans', 'monkeys'],
+    y: [20, 24, 23],
+    type: 'bar',
+  }
+];
+
 
 const { Header, Content} = Layout;
 
 const Option = Select.Option
 
 const AccessToken = 'pk.eyJ1IjoicGluZXlkYXRhIiwiYSI6ImNqb2t3NWN6ZDAycGkzcXAzODc2cml2bm8ifQ.aGKqMqIIKcLto1Lw9Ek89A'
+
+const ly = {
+  autosize: true,
+  margin: {
+    l: 1,
+    r: 1,
+    b: 2,
+    t: 30,
+    pad: 0
+  },
+  plot_bgcolor: '#ECECEC',
+  paper_bgcolor: '#ECECEC',
+  title: '<b>Test Plot</b>'
+}
 
 const layout = {
   autosize: true,
@@ -19,10 +41,10 @@ const layout = {
     bearing:0,
     center: {
       lat:38,
-      lon:-95
+      lon:-96
     },
     pitch:0,
-    zoom:3.2,
+    zoom:3.5,
     style:'streets'
   },
   margin: {
@@ -33,6 +55,8 @@ const layout = {
     pad: 4
   },
 }
+
+const gutter = { "xs": 8, "sm": 8, "md": 8, "lg": 16 }
 
 const spec = 'api/chart';
 const states = '/api/states'
@@ -74,20 +98,27 @@ class Map extends Component {
 
     // this is still not quite working.  I want the layout to update
     // but having some issues getting it from the API
-    axios.get(states+'/'+opt)
-      .then((res) => {
-        this.setState({layout: layout})  // try to change later
+    // axios.get(states+'/'+opt)
+    //   .then((res) => {
+    //     this.setState({layout: layout})  // try to change later
+    //
+    //   return axios.get(spec+'/state/'+opt);
+    //   })
+    //   .then((res) => {
+    //     this.setState({ data: res.data.data })
+    //
+    //   })
+    //   .catch((err) => {
+    //     console.error(err)
+    //   });
 
-      return axios.get(spec+'/state/'+opt);
-      })
+    axios.get(spec+'/urban'+opt)
       .then((res) => {
         this.setState({ data: res.data.data })
-
       })
       .catch((err) => {
         console.error(err)
       });
-
   };
 
   onUrbanSelectChange = opt => {
@@ -97,20 +128,27 @@ class Map extends Component {
 
     // this is still not quite working.  I want the layout to update
     // but having some issues getting it from the API
-    axios.get(states+'/'+opt)
-      .then((res) => {
-        this.setState({layout: layout})  // try to change later
+    // axios.get(states+'/'+opt)
+    //   .then((res) => {
+    //     this.setState({layout: layout})  // try to change later
+    //
+    //   return axios.get(spec+'/urban/'+opt);
+    //   })
+    //   .then((res) => {
+    //     this.setState({ data: res.data.data })
+    //
+    //   })
+    //   .catch((err) => {
+    //     console.error(err)
+    //   });
 
-      return axios.get(spec+'/urban/'+opt);
-      })
+    axios.get(spec+'/urban'+opt)
       .then((res) => {
         this.setState({ data: res.data.data })
-
       })
       .catch((err) => {
         console.error(err)
       });
-
   };
 
   render() {
@@ -135,7 +173,7 @@ class Map extends Component {
                   marginRight:'2%',
                 }}
                 >
-                <Row>
+                <Row gutter={gutter}>
                   <Col span={6}>
                       <Select
                         showSearch
@@ -147,7 +185,7 @@ class Map extends Component {
                           <Option key='rural'>Rural </Option>
                       </Select>
                   </Col>
-                  <Col span={18}>
+                  <Col xs={0} sm={18}>
                     <Select
                       showSearch
                       defaultValue="Select a state"
@@ -160,21 +198,71 @@ class Map extends Component {
                   </Col>
                 </Row>
                 <Row>
-                  <Plot
-                    data={ this.state.data }
-                    layout={ this.state.layout }
-                    style={
-                      {
-                        width: '100%',
-                        height: '100%',
-                      }
-                     }
-                    useResizeHandler={ true }
-                    config={{
-                      mapboxAccessToken: AccessToken,
-                      displaylogo: false,
-                    }}>
-                  </Plot>
+                  <Col lg={18} md={18} xs={24}>
+                    <Plot
+                      data={ this.state.data }
+                      layout={ this.state.layout }
+                      style={
+                        {
+                          width: '100%',
+                          height: '600px',
+                        }
+                       }
+                      useResizeHandler={ true }
+                      config={{
+                        mapboxAccessToken: AccessToken,
+                        displaylogo: false,
+                      }}>
+                    </Plot>
+
+                  </Col>
+                  <Col lg={6} md={6} xs={0}>
+                    <Row>
+                      <Plot
+                        data={ bar }
+                        layout={ ly }
+                        style={
+                          {
+                            width: '100%',
+                            height: '200px',
+                          }
+                        }
+                        config={{
+                          displayModeBar: false,
+                        }}>
+                      </Plot>
+                    </Row>
+                    <Row>
+                      <Plot
+                        data={ bar }
+                        layout={ ly }
+                        style={
+                          {
+                            width: '100%',
+                            height: '200px',
+                          }
+                        }
+                        config={{
+                          displayModeBar: false,
+                        }}>
+                      </Plot>
+                    </Row>
+                    <Row>
+                      <Plot
+                        data={ bar }
+                        layout={ ly }
+                        style={
+                          {
+                            width: '100%',
+                            height: '200px',
+                          }
+                        }
+                        config={{
+                          displayModeBar: false,
+                        }}>
+                      </Plot>
+                    </Row>
+                  </Col>
                 </Row>
               </div>
             </Content>
