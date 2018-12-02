@@ -25,8 +25,8 @@ const ly = {
   margin: {
     l: 1,
     r: 1,
-    b: 2,
-    t: 30,
+    b: 30,
+    t: 45,
     pad: 0
   },
   plot_bgcolor: '#ECECEC',
@@ -93,28 +93,20 @@ class Map extends Component {
     this.setState({
       selectValue: opt.value,
     })
-    console.log(opt)
-    console.log(this.selectValue)
 
     // this is still not quite working.  I want the layout to update
     // but having some issues getting it from the API
-    // axios.get(states+'/'+opt)
-    //   .then((res) => {
-    //     this.setState({layout: layout})  // try to change later
-    //
-    //   return axios.get(spec+'/state/'+opt);
-    //   })
-    //   .then((res) => {
-    //     this.setState({ data: res.data.data })
-    //
-    //   })
-    //   .catch((err) => {
-    //     console.error(err)
-    //   });
-
-    axios.get(spec+'/urban'+opt)
+    axios.get(states+'/'+opt)
       .then((res) => {
-        this.setState({ data: res.data.data })
+        this.setState({layout: layout})  // try to change later
+
+      return axios.get(spec+'/state/'+opt);
+      })
+      .then((res) => {
+        this.setState({
+          data: res.data.data,
+          layout: res.data.layout})
+
       })
       .catch((err) => {
         console.error(err)
@@ -128,28 +120,23 @@ class Map extends Component {
 
     // this is still not quite working.  I want the layout to update
     // but having some issues getting it from the API
-    // axios.get(states+'/'+opt)
-    //   .then((res) => {
-    //     this.setState({layout: layout})  // try to change later
-    //
-    //   return axios.get(spec+'/urban/'+opt);
-    //   })
-    //   .then((res) => {
-    //     this.setState({ data: res.data.data })
-    //
-    //   })
-    //   .catch((err) => {
-    //     console.error(err)
-    //   });
-
-    axios.get(spec+'/urban'+opt)
+    axios.get(states+'/'+opt)
       .then((res) => {
-        this.setState({ data: res.data.data })
+        this.setState({layout: layout})  // try to change later
+
+      return axios.get(spec+'/urban/'+opt);
+      })
+      .then((res) => {
+        this.setState({
+          data: res.data.data,
+          layout: res.data.layout})
+
       })
       .catch((err) => {
         console.error(err)
       });
-  };
+    };
+
 
   render() {
     return (
