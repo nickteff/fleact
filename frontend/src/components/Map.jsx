@@ -18,7 +18,6 @@ const { Header, Content} = Layout;
 
 const Option = Select.Option
 
-const AccessToken = 'pk.eyJ1IjoicGluZXlkYXRhIiwiYSI6ImNqb2t3NWN6ZDAycGkzcXAzODc2cml2bm8ifQ.aGKqMqIIKcLto1Lw9Ek89A'
 
 const ly = {
   autosize: true,
@@ -34,40 +33,19 @@ const ly = {
   title: '<b>Test Plot</b>'
 }
 
-const layout = {
-  autosize: true,
-  hovermode:'closest',
-  mapbox: {
-    bearing:0,
-    center: {
-      lat:38,
-      lon:-96
-    },
-    pitch:0,
-    zoom:3.5,
-    style:'streets'
-  },
-  margin: {
-    l: 1,
-    r: 1,
-    b: 1,
-    t: 1,
-    pad: 4
-  },
-}
 
 const gutter = { "xs": 8, "sm": 8, "md": 8, "lg": 16 }
 
-const spec = 'api/chart';
+const map = 'api/map';
 const states = '/api/states'
 
 class Map extends Component {
   state = {
-    selectUrbanValue: '',
-    selectValue: '',
+    selectUrbanValue: 'both',
+    selectStateValue: 'USA',
     options: [],
     data: [],
-    layout: layout,
+    layout: {},
   };
 
   componentDidMount() {
@@ -79,9 +57,16 @@ class Map extends Component {
         console.error(error);
       });
 
-      axios.get(spec+'/country')
+      axios.get(
+        map+'/'+this.state.selectStateValue+'/'+this.state.selectUrbanValue
+      )
         .then((res) => {
-          this.setState({ data: res.data.data })
+          this.setState(() => {
+            return {
+            data: res.data.data,
+            layout: res.data.layout,
+            }
+          })
         })
         .catch((error) => {
           console.error(error);
@@ -89,19 +74,14 @@ class Map extends Component {
 
   }
 
-  onSelectChange = opt => {
-    this.setState({
-      selectValue: opt.value,
-    })
+  onStateSelectChange = opt => {
+    this.setState(() => {
+      return { selectStateValue: opt}
+    });
 
-    // this is still not quite working.  I want the layout to update
-    // but having some issues getting it from the API
-    axios.get(states+'/'+opt)
-      .then((res) => {
-        this.setState({layout: layout})  // try to change later
 
-      return axios.get(spec+'/state/'+opt);
-      })
+    console.log(this.state.selectStateValue)
+    axios.get(map+'/'+opt+'/'+this.state.selectUrbanValue)
       .then((res) => {
         this.setState({
           data: res.data.data,
@@ -114,18 +94,11 @@ class Map extends Component {
   };
 
   onUrbanSelectChange = opt => {
-    this.setState({
-      selectUrbanValue: opt,
-    })
+    this.setState(() => {
+      return { selectUrbanValue: opt}
+    });
 
-    // this is still not quite working.  I want the layout to update
-    // but having some issues getting it from the API
-    axios.get(states+'/'+opt)
-      .then((res) => {
-        this.setState({layout: layout})  // try to change later
-
-      return axios.get(spec+'/urban/'+opt);
-      })
+    axios.get(map+'/'+this.state.selectStateValue+'/'+opt)
       .then((res) => {
         this.setState({
           data: res.data.data,
@@ -144,8 +117,6 @@ class Map extends Component {
         className="App"
         style={{
           paddingTop: '10px',
-          //paddingLeft: '5%',
-          //paddingRight: '-5%',
           background:'#ECECEC'
         }}>
           <Layout>
@@ -163,21 +134,20 @@ class Map extends Component {
                 <Row gutter={gutter}>
                   <Col span={6}>
                       <Select
-                        showSearch
                         defaultValue="Urban or rural"
                         style={{ width: '100%' }}
                         onChange={ this.onUrbanSelectChange }
                       >
+                          <Option key='both'>Both </Option>
                           <Option key='urban'>Urban </Option>
                           <Option key='rural'>Rural </Option>
                       </Select>
                   </Col>
                   <Col xs={0} sm={18}>
                     <Select
-                      showSearch
                       defaultValue="Select a state"
                       style={{ width: '100%' }}
-                      onChange={ this.onSelectChange }
+                      onChange={ this.onStateSelectChange }
                     >
                       { this.state.options.map(st =>
                         <Option key={ st.value }>{ st.label } </Option>) }
@@ -197,7 +167,6 @@ class Map extends Component {
                        }
                       useResizeHandler={ true }
                       config={{
-                        mapboxAccessToken: AccessToken,
                         displaylogo: false,
                       }}>
                     </Plot>

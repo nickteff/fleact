@@ -53,5 +53,15 @@ census = pd.concat(
     axis=1
 )
 
+census = census.assign(Urban=[urban(row.MSA_CODE) for row in df.loc[:, ["MSA_CODE"]].itertuples()])
+
+
 
 census.to_csv("compute/static/census.csv")
+
+
+def urban(row):
+    if row == 0:
+        return 'rural'
+    else:
+        return 'urban'
