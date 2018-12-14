@@ -5,47 +5,29 @@ import "antd/dist/antd.css";
 import Plot from 'react-plotly.js';
 import axios from 'axios';
 
-const bar = [
-  {
-    x: ['giraffes', 'orangutans', 'monkeys'],
-    y: [20, 24, 23],
-    type: 'bar',
-  }
-];
-
-
 const { Header, Content} = Layout;
 
 const Option = Select.Option
 
-
-const ly = {
-  autosize: true,
-  margin: {
-    l: 1,
-    r: 1,
-    b: 30,
-    t: 45,
-    pad: 0
-  },
-  plot_bgcolor: '#ECECEC',
-  paper_bgcolor: '#ECECEC',
-  title: '<b>Test Plot</b>'
-}
-
-
 const gutter = { "xs": 8, "sm": 8, "md": 8, "lg": 16 }
 
 const map = 'api/map';
-const states = '/api/states'
+const states = '/api/states';
+const bar = 'api/bar';
 
 class Map extends Component {
   state = {
     selectUrbanValue: 'both',
     selectStateValue: 'USA',
     options: [],
-    data: [],
-    layout: {},
+    mapData: [],
+    mapLayout: {},
+    incomeData: [],
+    incomeLayout: {},
+    generationData: [],
+    generationLayout: {},
+    educationData: [],
+    educationLayout: {},
   };
 
   componentDidMount() {
@@ -63,8 +45,36 @@ class Map extends Component {
         .then((res) => {
           this.setState(() => {
             return {
-            data: res.data.data,
-            layout: res.data.layout,
+            mapData: res.data.data,
+            mapLayout: res.data.layout,
+            }
+          })
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      axios.get(
+        map + '/' + this.state.selectStateValue + '/' + this.state.selectUrbanValue
+      )
+        .then((res) => {
+          this.setState(() => {
+            return {
+              mapData: res.data.data,
+              mapLayout: res.data.layout,
+            }
+          })
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      axios.get(
+        bar + '/' + this.state.selectStateValue + '/' + this.state.selectUrbanValue + '/income'
+      )
+        .then((res) => {
+          this.setState(() => {
+            return {
+              incomeData: res.data.data,
+              incomeLayout: res.data.layout,
             }
           })
         })
@@ -84,9 +94,9 @@ class Map extends Component {
     axios.get(map+'/'+opt+'/'+this.state.selectUrbanValue)
       .then((res) => {
         this.setState({
-          data: res.data.data,
-          layout: res.data.layout})
-
+          mapData: res.data.data,
+          mapLayout: res.data.layout})
+        
       })
       .catch((err) => {
         console.error(err)
@@ -101,8 +111,8 @@ class Map extends Component {
     axios.get(map+'/'+this.state.selectStateValue+'/'+opt)
       .then((res) => {
         this.setState({
-          data: res.data.data,
-          layout: res.data.layout})
+          mapData: res.data.data,
+          mapLayout: res.data.layout})
 
       })
       .catch((err) => {
@@ -155,10 +165,10 @@ class Map extends Component {
                   </Col>
                 </Row>
                 <Row>
-                  <Col lg={18} md={18} xs={24}>
+                  <Col lg={16} md={16} xs={24}>
                     <Plot
-                      data={ this.state.data }
-                      layout={ this.state.layout }
+                      data={ this.state.mapData }
+                      layout={ this.state.mapLayout }
                       style={
                         {
                           width: '100%',
@@ -172,11 +182,11 @@ class Map extends Component {
                     </Plot>
 
                   </Col>
-                  <Col lg={6} md={6} xs={0}>
+                  <Col lg={8} md={8} xs={0}>
                     <Row>
                       <Plot
-                        data={ bar }
-                        layout={ ly }
+                        data={ this.state.incomeData }
+                        layout={ this.state.incomeLayout }
                         style={
                           {
                             width: '100%',
@@ -190,8 +200,8 @@ class Map extends Component {
                     </Row>
                     <Row>
                       <Plot
-                        data={ bar }
-                        layout={ ly }
+                        data={this.state.incomeData}
+                        layout={this.state.incomeLayout}
                         style={
                           {
                             width: '100%',
@@ -205,8 +215,8 @@ class Map extends Component {
                     </Row>
                     <Row>
                       <Plot
-                        data={ bar }
-                        layout={ ly }
+                        data={this.state.incomeData}
+                        layout={this.state.incomeLayout}
                         style={
                           {
                             width: '100%',
