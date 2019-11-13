@@ -1,46 +1,33 @@
 import React, { Component } from 'react';
-import {Row, Col, Select, Card} from 'antd';
+import {Row, Col, Select, Layout} from 'antd';
 import "antd/dist/antd.css";
 //import Select from 'react-select';
 import Plot from 'react-plotly.js';
 import axios from 'axios';
 
+const { Header, Content} = Layout;
+
 const Option = Select.Option
 
-const AccessToken = 'pk.eyJ1IjoicGluZXlkYXRhIiwiYSI6ImNqb2t3NWN6ZDAycGkzcXAzODc2cml2bm8ifQ.aGKqMqIIKcLto1Lw9Ek89A'
+const gutter = { "xs": 8, "sm": 8, "md": 8, "lg": 16 }
 
-const layout = {
-  autosize: true,
-  hovermode:'closest',
-  mapbox: {
-    bearing:0,
-    center: {
-      lat:38,
-      lon:-95
-    },
-    pitch:0,
-    zoom:3.2,
-    style:'streets'
-  },
-  margin: {
-    l: 0,
-    r: 5,
-    b: 10,
-    t: 5,
-    pad: 4
-  },
-}
-
-const spec = 'api/chart';
-const states = '/api/states'
+const map = 'api/map';
+const states = '/api/states';
+const bar = 'api/bar';
 
 class Map extends Component {
   state = {
-    selectUrbanValue: '',
-    selectValue: '',
+    selectUrbanValue: 'both',
+    selectStateValue: 'USA',
     options: [],
-    data: [],
-    layout: layout,
+    mapData: [],
+    mapLayout: {},
+    incomeData: [],
+    incomeLayout: {},
+    generationData: [],
+    generationLayout: {},
+    educationData: [],
+    educationLayout: {},
   };
 
   componentDidMount() {
@@ -52,9 +39,44 @@ class Map extends Component {
         console.error(error);
       });
 
-      axios.get(spec+'/country')
+      axios.get(
+        map+'/'+this.state.selectStateValue+'/'+this.state.selectUrbanValue
+      )
         .then((res) => {
-          this.setState({ data: res.data.data })
+          this.setState(() => {
+            return {
+            mapData: res.data.data,
+            mapLayout: res.data.layout,
+            }
+          })
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      axios.get(
+        map + '/' + this.state.selectStateValue + '/' + this.state.selectUrbanValue
+      )
+        .then((res) => {
+          this.setState(() => {
+            return {
+              mapData: res.data.data,
+              mapLayout: res.data.layout,
+            }
+          })
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      axios.get(
+        bar + '/' + this.state.selectStateValue + '/' + this.state.selectUrbanValue + '/income'
+      )
+        .then((res) => {
+          this.setState(() => {
+            return {
+              incomeData: res.data.data,
+              incomeLayout: res.data.layout,
+            }
+          })
         })
         .catch((error) => {
           console.error(error);
@@ -62,52 +84,42 @@ class Map extends Component {
 
   }
 
-  onSelectChange = opt => {
-    this.setState({
-      selectValue: opt.value,
-    })
-    console.log(opt)
-    console.log(this.selectValue)
-    // this is still not quite working.  I want the layout to update
-    // but having some issues getting it from the API
-    axios.get(states+'/'+opt)
-      .then((res) => {
-        this.setState({layout: layout})  // try to change later
+  onStateSelectChange = opt => {
+    this.setState(() => {
+      return { selectStateValue: opt}
+    });
 
-      return axios.get(spec+'/state/'+opt);
-      })
-      .then((res) => {
-        this.setState({ data: res.data.data })
 
+    console.log(this.state.selectStateValue)
+    axios.get(map+'/'+opt+'/'+this.state.selectUrbanValue)
+      .then((res) => {
+        this.setState({
+          mapData: res.data.data,
+          mapLayout: res.data.layout})
+        
       })
       .catch((err) => {
         console.error(err)
       });
-
   };
 
   onUrbanSelectChange = opt => {
-    this.setState({
-      selectUrbanValue: opt,
-    })
+    this.setState(() => {
+      return { selectUrbanValue: opt}
+    });
 
-    // this is still not quite working.  I want the layout to update
-    // but having some issues getting it from the API
-    axios.get(states+'/'+opt)
+    axios.get(map+'/'+this.state.selectStateValue+'/'+opt)
       .then((res) => {
-        this.setState({layout: layout})  // try to change later
-
-      return axios.get(spec+'/urban/'+opt);
-      })
-      .then((res) => {
-        this.setState({ data: res.data.data })
+        this.setState({
+          mapData: res.data.data,
+          mapLayout: res.data.layout})
 
       })
       .catch((err) => {
         console.error(err)
       });
+    };
 
-  };
 
   render() {
     return (
@@ -115,59 +127,112 @@ class Map extends Component {
         className="App"
         style={{
           paddingTop: '10px',
-          paddingLeft: '5%',
-          paddingRight: '-5%',
           background:'#ECECEC'
         }}>
+          <Layout>
+            <Header theme='light'>
+              <h2 className='logo'>US Census</h2>
+            </Header>
+            <Content>
+              <div
+                style={{
+                  marginTop:'1%',
+                  marginLeft:'2%',
+                  marginRight:'2%',
+                }}
+                >
+                <Row gutter={gutter}>
+                  <Col span={6}>
+                      <Select
+                        defaultValue="Urban or rural"
+                        style={{ width: '100%' }}
+                        onChange={ this.onUrbanSelectChange }
+                      >
+                          <Option key='both'>Both </Option>
+                          <Option key='urban'>Urban </Option>
+                          <Option key='rural'>Rural </Option>
+                      </Select>
+                  </Col>
+                  <Col xs={0} sm={18}>
+                    <Select
+                      defaultValue="Select a state"
+                      style={{ width: '100%' }}
+                      onChange={ this.onStateSelectChange }
+                    >
+                      { this.state.options.map(st =>
+                        <Option key={ st.value }>{ st.label } </Option>) }
+                    </Select>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col lg={16} md={16} xs={24}>
+                    <Plot
+                      data={ this.state.mapData }
+                      layout={ this.state.mapLayout }
+                      style={
+                        {
+                          width: '100%',
+                          height: '600px',
+                        }
+                       }
+                      useResizeHandler={ true }
+                      config={{
+                        displaylogo: false,
+                      }}>
+                    </Plot>
 
-          <Card
-            title="US Census"
-            style={{
-              width: '95%',
-              height: '95%',
-            }}
-            hoverable
-          >
-            <Row>
-              <Col span={6}>
-                  <Select
-                    showSearch
-                    defaultValue="Urban or rural"
-                    style={{ width: '100%' }}
-                    onChange={ this.onUrbanSelectChange }
-                  >
-                      <Option key='urban'>Urban </Option>
-                      <Option key='rural'>Rural </Option>
-                  </Select>
-              </Col>
-              <Col span={6}>
-              <Select
-                showSearch
-                defaultValue="Select a state"
-                style={{ width: '100%' }}
-                onChange={ this.onSelectChange }
-              >
-                { this.state.options.map(st =>
-                  <Option key={ st.value }>{ st.label } </Option>) }
-              </Select>
-            </Col>
-            </Row>
-            <Plot
-              data={ this.state.data }
-              layout={ this.state.layout }
-              style={
-                {
-                  width: '75%',
-                  height: '50%',
-                }
-               }
-              useResizeHandler={ true }
-              config={{
-                mapboxAccessToken: AccessToken,
-                displaylogo: false,
-              }}>
-            </Plot>
-          </Card>
+                  </Col>
+                  <Col lg={8} md={8} xs={0}>
+                    <Row>
+                      <Plot
+                        data={ this.state.incomeData }
+                        layout={ this.state.incomeLayout }
+                        style={
+                          {
+                            width: '100%',
+                            height: '200px',
+                          }
+                        }
+                        config={{
+                          displayModeBar: false,
+                        }}>
+                      </Plot>
+                    </Row>
+                    <Row>
+                      <Plot
+                        data={this.state.incomeData}
+                        layout={this.state.incomeLayout}
+                        style={
+                          {
+                            width: '100%',
+                            height: '200px',
+                          }
+                        }
+                        config={{
+                          displayModeBar: false,
+                        }}>
+                      </Plot>
+                    </Row>
+                    <Row>
+                      <Plot
+                        data={this.state.incomeData}
+                        layout={this.state.incomeLayout}
+                        style={
+                          {
+                            width: '100%',
+                            height: '200px',
+                          }
+                        }
+                        config={{
+                          displayModeBar: false,
+                        }}>
+                      </Plot>
+                    </Row>
+                  </Col>
+                </Row>
+              </div>
+            </Content>
+          </Layout>
       </div>
     );
   }

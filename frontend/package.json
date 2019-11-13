@@ -14,7 +14,8 @@
     "react-select": "^2.1.1",
     "vega": "^4.3.0",
     "vega-embed": "^3.24.1",
-    "vega-lite": "^3.0.0-rc8"
+    "vega-lite": "^3.0.0-rc8",
+    "yarn": "^1.19.1"
   },
   "proxy": "http://localhost:5000",
   "scripts": {

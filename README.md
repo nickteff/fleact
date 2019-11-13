@@ -40,7 +40,7 @@ yarn install
 ```bash
 yarn build;
 cd ..;
-flask run
+python fleact.py
 ```
 
 Go to `localhost:5000` and all should be good!
