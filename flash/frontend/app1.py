@@ -1,4 +1,5 @@
 import dash
+import dash_bootstrap_components as dbc
 import dash_html_components as html
 import dash_core_components as dcc
 import numpy as np
@@ -6,30 +7,21 @@ import pandas as pd
 import plotly.graph_objs as go
 from backend import server
 
-app = dash.Dash(
-    server=server,
-    #requests_pathname_prefix='/app1/',
-    #routes_pathname_prefix='/app1/',
-    url_base_pathname='/app1/'
-)
+app = dash.Dash(__name__,
+                server=server,
+                external_stylesheets=[dbc.themes.BOOTSTRAP],
+                url_base_pathname='/app1/'
+                )
 df = pd.read_csv(
     'https://gist.githubusercontent.com/chriddyp/' +
     '5d1ea79569ed194d432e56108a04d188/raw/' +
-    'a9f9e8076b837d541398e999dcbac2b2826a81f8/'+
+    'a9f9e8076b837d541398e999dcbac2b2826a81f8/' +
     'gdp-life-exp-2007.csv')
 
-external_css = [
-    'https://codepen.io/chriddyp/pen/bWLwgP.css'
-]
-for css in external_css:
-    app.css.append_css({"external_url": css})
-
-#theta = [20 + 320/8*i for i in range(8)]
-#width = [320/8 for i in range(8)]
 trace1 = go.Barpolar(
     r=[77.5, 72.5, 70.0, 45.0, 22.5, 42.5, 40.0, 62.5],
-    #theta=theta,
-    #width=width,
+    # theta=theta,
+    # width=width,
     text=['North', 'N-E', 'East', 'S-E', 'South', 'S-W', 'West', 'N-W'],
     name='11-14 m/s',
     marker=dict(
@@ -62,11 +54,12 @@ trace4 = go.Barpolar(
 )
 
 app.layout = html.Div([
+    html.H1('Hello!'),
     dcc.Graph(
         id='life-exp-vs-gdp',
         figure={
-            'data' : [trace1, trace2, trace3, trace4],
-            'layout' : go.Layout(
+            'data': [trace1, trace2, trace3, trace4],
+            'layout': go.Layout(
                 title='Wind Speed Distribution in Laurel, NE',
                 font=dict(
                     size=16

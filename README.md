@@ -27,18 +27,18 @@ pip install -r requirements.txt
 
 ```bash
 cd ../frontend;
-yarn install
+npm install
 ```
 
 3.1 Explore the frontend development environment by running
 
-`yarn start` and navigating to `localhost:3000.`  
+`npm start` and navigating to `localhost:3000.`  
 
 *Note: The Flask server needs to be running for the frontend to proxy over to the API.*
 
 4. Compile and run from the static Flask server
 ```bash
-yarn build;
+npm run-script build;
 cd ..;
 python fleact.py
 ```

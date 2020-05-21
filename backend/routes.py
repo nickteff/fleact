@@ -193,7 +193,3 @@ def barmap(df, measure):
     # import plotly.plotly as py
 
     # py.offline.plot(barmap(df, 'income'))
-
- 
-
-

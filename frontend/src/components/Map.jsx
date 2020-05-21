@@ -7,9 +7,9 @@ import axios from 'axios';
 
 const { Header, Content} = Layout;
 
-const Option = Select.Option
+const Option = Select.Option;
 
-const gutter = { "xs": 8, "sm": 8, "md": 8, "lg": 16 }
+const gutter = { "xs": 8, "sm": 8, "md": 8, "lg": 16 };
 
 const map = 'api/map';
 const states = '/api/states';
@@ -90,7 +90,7 @@ class Map extends Component {
     });
 
 
-    console.log(this.state.selectStateValue)
+    console.log(this.state.selectStateValue);
     axios.get(map+'/'+opt+'/'+this.state.selectUrbanValue)
       .then((res) => {
         this.setState({

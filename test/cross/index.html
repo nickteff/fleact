@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Plotly.js + Crossfilter.js</title>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js"></script>
+        <script type="text/javascript" src="script.js"></script>
+
+        <link href="https://fonts.googleapis.com/css?family=Dosis|Open+Sans" rel="stylesheet">
+        <style>
+            p {
+                font-family: 'Open Sans',sans-serif;
+                font-size: 16px;
+                line-height: 26px;
+            }
+
+              h2 {
+                font-size: 34px;
+                line-height: 44px;
+                font-family: 'Dosis',sans-serif;
+              }
+        </style>
+    </head>
+    <body style="text-align: center;">
+        <h2>Plotly.js + Crossfilter.js</h2>
+
+        <div  style="max-width: 900px; margin: 0 auto;">
+        <p>This is a simple demo of <a href="https://plot.ly/javascript/" target="_blank">Plotly.js</a> working with <a href="http://square.github.io/crossfilter/" target="_blank">Crossfilter.js</a> using <a href="http://databank.worldbank.org/data/reports.aspx?source=world-development-indicators#" target="_blank">World Bank data</a> with code available on <a href="https://github.com/plotly/plotly.js-crossfilter.js" target="_blank">Github</a>. <br /> Click and drag on any visualization to narrow down the filter and you'll see the data update on the other two to reflect the narrowed-down selection of countries. Double-click on a visualization to clear that filter.</p>
+        <p>
+            <span style="background: #66F; color: white">Blue</span> indicates
+                countries included in every graphics' filter, <br />
+            <span style="background: #CCF">Light Blue</span> indicates
+                countries excluded by another graphic's filter but not this one's, and<br />
+            <span style="background: #CCC">Grey</span> indicates
+                countries excluded by this graphic's filter only,  <br />
+            <span style="background: #EEE">Light Grey</span> indicates
+                countries excluded by this graphic's filter and one or more others. <br />            <br />
+        <button onclick="window.resetFilters()" style="font-size: 16px">click here to reset filters</button> </p>
+
+        </div>
+
+        <br />
+        <br />
+        <table style="width: 900px; margin: 0 auto;">
+        <tr>
+            <td colspan="2" align="center">
+                <div id="map"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div id="hist_im"></div>
+            </td>
+            <td>
+                <div id="hist_gdp"></div>
+            </td>
+        </tr>
+        </table>
+
+
+    </body>
+</html>
